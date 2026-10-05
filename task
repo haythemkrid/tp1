@@ -1,0 +1,54 @@
+PARTIE A :
+Tuto Docker en Anglais noté
+https://drive.google.com/file/d/1yHIrXWRiahJuV_p1uPwAY4C0e2XIEe_2/view?usp=drive_link
+
+PARTIE B : Travaux Pratiques : Conteneurisation et Orchestration Micro-services
+
+Objectifs : Maîtriser le cycle de vie d'un conteneur, l'optimisation d'images, la persistance des données et l'orchestration multi-services.
+🏗️ Contexte du Projet
+Vous devez déployer une application "Visit-Counter".
+L'architecture est composée de deux services :Web-App : Un service qui affiche le nombre de visites et l'identifiant du conteneur qui répond.Database : Une instance Redis qui stocke le compteur de manière persistante.🛠️ Partie 0 : Configuration de l'environnementVérifiez que Docker est installé : docker version.Authentifiez-vous sur le registre : docker login.Créez un dossier de travail TP_Docker_NOM_PRENOM/.
+📦 Partie 1 : Dockerfile & Isolation (1h)
+Objectif : Créer une image légère et sécurisée.Développement : Créez une application web (Python Flask, Node.js, Go, etc.) qui :
+
+• Se connecte à un serveur Redis nommé db-service.
+• Incrémente une clé hits à chaque visite.
+• Affiche : "Bonjour ! Cette page a été vue X fois. Je suis le conteneur [ID]".
+Rédaction du Dockerfile :
+• Utilisez une image de base Alpine ou Slim.
+• Ne lancez pas l'application en tant qu'utilisateur root.
+• Gérez les dépendances pour maximiser l'utilisation du cache Docker.
+Commandes à valider :
+• docker build -t counter-app:1.0 .
+• docker images (Vérifiez la taille de votre image, elle doit être la plus petite possible).
+
+🌐 Partie 2 : Réseau et Volume (1h)
+Objectif : Faire communiquer les briques manuellement.Réseau : Créez un réseau bridge nommé app-network.Stockage : Créez un volume nommé redis-data.Déploiement manuel :
+
+• Lancez Redis : Connecté au réseau app-network, nommez le conteneur db-service, et montez le volume redis-data sur /data.
+• Lancez votre App : Connectée au réseau app-network, port 80 de l'hôte vers port de l'app.
+
+Test de robustesse : Supprimez le conteneur Redis (docker rm -f). Relancez-le. Le compteur doit avoir conservé sa valeur.
+🎼 Partie 3 : Orchestration avec Docker Compose (1h30)
+Objectif : Automatiser et scaler.Fichier docker-compose.yml : Centralisez la configuration (services, réseaux, volumes, variables d'environnement).Variables : Utilisez un fichier .env pour ne pas mettre les ports en dur dans le YAML.Scaling : Lancez l'infrastructure avec 3 instances du service web :
+docker compose up -d --scale web=3 Analyse : Pourquoi ne pouvez-vous pas accéder aux 3 instances sur le même port hôte ? Proposez une solution théorique (Load Balancer).
+📤 Partie 4 : Publication et NettoyageDocker Hub : Taguez votre image et poussez-la sur votre compte Docker Hub.Nettoyage industriel ou Deep Clean: Utilisez une seule commande pour supprimer tout ce que vous avez créé (conteneurs, réseaux, images non utilisées).
+
+📑 Contenu du Compte Rendu (PDF)
+Votre rapport doit obligatoirement inclure :Le Dockerfile commenté avec justification du choix de l'image de base.Le fichier Docker Compose final.Captures d'écran :
+
+• Résultat de docker images (montrant la taille).
+• Résultat de docker network inspect app-network avec les conteneurs connectés.
+• L'application fonctionnant dans le navigateur.
+
+Réflexion : Expliquez la différence entre l'instruction RUN et CMD.Lien Docker Hub : Lien vers votre image publique.💡 Aide au Debugging
+
+• Voir les logs : docker compose logs -f
+• Entrer dans un conteneur : docker exec -it <nom> sh
+• Vérifier les montages : docker inspect <nom_conteneur>
+
+PARTIE C : Pipeline
+
+Créer un pipeline (avec jenkins par exemple) qui se déclenche automatiquement à chaque commit sur la branche principale et :
+1. réalise un build et des tests unitaires
+2. Fait un Build de l'mage et la publie dans Docker Hub

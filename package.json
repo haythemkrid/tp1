@@ -1,0 +1,14 @@
+{
+  "name": "visit-counter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Redis-backed visit counter for the Docker practical assignment",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "redis": "^4.7.0"
+  }
+}

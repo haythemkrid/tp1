@@ -1,0 +1,38 @@
+services:
+  db-service:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build:
+      context: .
+    image: counter-app:1.0
+    env_file:
+      - .env
+    environment:
+      REDIS_HOST: db-service
+    depends_on:
+      db-service:
+        condition: service_healthy
+    ports:
+      - "${PORT:-3000}:3000"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: app-network
+    driver: bridge
+
+volumes:
+  redis-data:
+    name: redis-data
